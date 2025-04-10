@@ -32,6 +32,24 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('reports.index') }}">Reports</a>
                     </li>
+                    <!-- Add this after the Reports nav item in the navbar -->
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="{{ url_for('alerts.index') }}">
+                            Alerts
+                            {% if g.alerts_count and g.alerts_count > 0 %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ g.alerts_count }}
+                                <span class="visually-hidden">unread alerts</span>
+                            </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    
+                    <!-- Add this at the end of the body, just before the closing body tag -->
+                    <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11;"></div>
+                    
+                    <!-- Make sure you have a block for scripts in your base template -->
+                    {% block scripts %}{% endblock %}
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav">

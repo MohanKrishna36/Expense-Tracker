@@ -41,6 +41,10 @@ def create_app(test_config=None):
     
     from . import reports
     app.register_blueprint(reports.bp)
+    
+    # Add this line where the other blueprints are registered
+    from . import alerts
+    app.register_blueprint(alerts.bp)
 
     # Home page route
     @app.route('/')

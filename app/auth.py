@@ -4,6 +4,7 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from app.database import get_db, query_db, insert_db
+from datetime import datetime
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -27,6 +28,44 @@ def load_logged_in_user():
         g.user = query_db(
             'SELECT * FROM users WHERE id = ?', (user_id,), one=True
         )
+
+@bp.before_app_request
+def load_alerts_count():
+    """Load the number of active alerts for the current user."""
+    if g.user:
+        # Get current month and year
+        today = datetime.now()
+        current_month = today.month
+        current_year = today.year
+        
+        # Count budget alerts (where spending exceeds budget or reaches 90%)
+        db = get_db()
+        alerts_count = db.execute(
+            '''
+            SELECT COUNT(*) as count
+            FROM (
+                SELECT 
+                    b.id,
+                    COALESCE(SUM(e.amount), 0) as spent_amount,
+                    b.amount as budget_amount
+                FROM budgets b
+                JOIN categories c ON b.category_id = c.id
+                LEFT JOIN expenses e ON c.id = e.category_id 
+                                    AND e.user_id = ? 
+                                    AND strftime('%m', e.date) = ? 
+                                    AND strftime('%Y', e.date) = ?
+                WHERE b.user_id = ? AND b.month = ? AND b.year = ?
+                GROUP BY b.id
+                HAVING spent_amount > budget_amount * 0.9
+            )
+            ''',
+            (g.user['id'], f'{current_month:02d}', str(current_year), 
+             g.user['id'], current_month, current_year)
+        ).fetchone()['count']
+        
+        g.alerts_count = alerts_count
+    else:
+        g.alerts_count = None
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
