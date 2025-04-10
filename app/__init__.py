@@ -29,6 +29,9 @@ def create_app(test_config=None):
     # Register blueprints
     from . import auth
     app.register_blueprint(auth.bp)
+    
+    from . import categories
+    app.register_blueprint(categories.bp)
 
     # Home page route
     @app.route('/')
