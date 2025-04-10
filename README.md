@@ -123,6 +123,114 @@ Expense Tracker is a **Flask-based** web application designed to help users mana
 
 ---
 
+## 🧪 Test Documentation
+
+This section outlines the test flow to validate various functionalities of the Expense Tracker application.
+
+### 1. User Authentication Testing
+
+#### 1.1 Registration Testing
+- Go to the registration page and enter:
+  - Username: `testuser`
+  - Email: `testuser@gmail.com`
+  - Password: `testpassword123`
+- Click **Register**
+- Expect redirection to the login page with a success message
+
+#### 1.2 Login Testing
+- Enter:
+  - Username: `testuser`
+  - Password: `testpassword123`
+- Click **Login**
+- Expect redirection to the dashboard
+
+---
+
+### 2. Budget Management Testing
+
+#### 2.1 Creating Budgets
+- Navigate to **Budgets**
+- Add a new budget for "Food" with ₹2000
+- Check dashboard for:
+  - Spent: ₹0
+  - Remaining: ₹2000
+  - Progress bar: 0%
+
+#### 2.2 Adding Additional Budget
+- Add another for "Entertainment" with ₹1000
+
+---
+
+### 3. Expense Management Testing
+
+#### 3.1 Adding Expenses
+- Navigate to **Expenses**
+- Add an expense under "Food":
+  - Amount: ₹500
+  - Description: Grocery shopping
+- Check updated "Food" budget:
+  - Spent: ₹500
+  - Remaining: ₹1500
+  - Progress: 25% (Green)
+
+#### 3.2 Add More Expenses
+- Add ₹1300 under "Food" for Restaurant
+- Total spent: ₹1800
+- Progress: 90% (Yellow)
+
+#### 3.3 Exceed Budget
+- Add ₹300 for Coffee
+- Total spent: ₹2100 on ₹2000 budget
+- Progress: Over 100% (Red)
+
+#### 3.4 Verify Budget Alert
+- Check Alerts/Dashboard
+- Verify red alert appears
+
+---
+
+### 4. Dashboard Testing
+
+- Verify dashboard shows total budget, total spent, and % used
+- Recent expenses list updated
+- Budget alerts shown if applicable
+
+---
+
+### 5. Reports Testing
+
+- Navigate to **Reports**
+- View category-wise or monthly charts (Bar)
+- Confirm data matches expenses
+
+---
+
+### 6. Editing & Deleting
+
+#### 6.1 Edit Expense
+- Change expense amount from ₹500 to ₹200
+- Verify updates in dashboard and budget
+
+#### 6.2 Edit Budget
+- Increase budget from ₹2000 to ₹2500
+- Alerts should update accordingly
+
+#### 6.3 Delete Expense
+- Remove expense and verify removal from all views
+
+#### 6.4 Delete Budget
+- Remove a budget; it should disappear from dashboard and alerts
+
+---
+
+### 7. Category Management
+
+- Add new category (e.g., "Gifts")
+- Use it in budgets/expenses
+- Verify it's tracked properly
+
+---
+
 ## 📁 Project Structure
 
 ```plaintext
@@ -160,6 +268,4 @@ expense-tracker/
 ## 📄 License
 
 This project is licensed under the **MIT License**.
-
 ```
-
