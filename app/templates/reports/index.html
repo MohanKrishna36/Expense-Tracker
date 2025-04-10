@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports - Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Reports</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Total Spending Per Month</h5>
+            </div>
+            <div class="card-body" style="height: 350px;">
+                <canvas id="monthlyTotalChart"></canvas>
+                <div id="monthlyTotalChartNoData" class="text-center py-5" style="display: none;">
+                    <p class="text-muted">No monthly expense data available.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Budget vs. Spending Per Category</h5>
+            </div>
+            <div class="card-body" style="height: 350px;">
+                <canvas id="budgetComparisonChart"></canvas>
+                <div id="budgetComparisonChartNoData" class="text-center py-5" style="display: none;">
+                    <p class="text-muted">No budget data available for this month.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Fetch chart data from API
+    fetch('{{ url_for("reports.chart_data") }}')
+        .then(response => response.json())
+        .then(data => {
+            // Create monthly total chart
+            const monthlyTotalCtx = document.getElementById('monthlyTotalChart').getContext('2d');
+            const monthlyTotalChartNoData = document.getElementById('monthlyTotalChartNoData');
+            
+            if (data.monthlyTotalData && data.monthlyTotalData.length > 0) {
+                monthlyTotalChartNoData.style.display = 'none';
+                new Chart(monthlyTotalCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.monthlyTotalData.map(item => item.month_name),
+                        datasets: [{
+                            label: 'Monthly Total',
+                            data: data.monthlyTotalData.map(item => item.total),
+                            backgroundColor: 'rgba(28, 200, 138, 0.7)',
+                            borderColor: 'rgba(28, 200, 138, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                monthlyTotalChartNoData.style.display = 'block';
+                monthlyTotalCtx.canvas.style.display = 'none';
+            }
+            
+            // Create budget comparison chart
+            const budgetComparisonCtx = document.getElementById('budgetComparisonChart').getContext('2d');
+            const budgetComparisonChartNoData = document.getElementById('budgetComparisonChartNoData');
+            
+            if (data.budgetComparisonData && data.budgetComparisonData.length > 0) {
+                budgetComparisonChartNoData.style.display = 'none';
+                new Chart(budgetComparisonCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.budgetComparisonData.map(item => item.category_name),
+                        datasets: [
+                            {
+                                label: 'Budget',
+                                data: data.budgetComparisonData.map(item => item.budget_amount),
+                                backgroundColor: 'rgba(78, 115, 223, 0.7)',
+                                borderColor: 'rgba(78, 115, 223, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Spent',
+                                data: data.budgetComparisonData.map(item => item.spent_amount),
+                                backgroundColor: 'rgba(231, 74, 59, 0.7)',
+                                borderColor: 'rgba(231, 74, 59, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                budgetComparisonChartNoData.style.display = 'block';
+                budgetComparisonCtx.canvas.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching chart data:', error);
+            document.getElementById('monthlyTotalChartNoData').style.display = 'block';
+            document.getElementById('budgetComparisonChartNoData').style.display = 'block';
+            
+            document.getElementById('monthlyTotalChart').style.display = 'none';
+            document.getElementById('budgetComparisonChart').style.display = 'none';
+        });
+</script>
+{% endblock %}

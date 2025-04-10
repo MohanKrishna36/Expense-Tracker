@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Category Report - Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Expenses by Category</h1>
+    <a href="{{ url_for('reports.index') }}" class="btn btn-outline-secondary">Back to Reports</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Date Range</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-5">
+                <label for="start_date" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date }}">
+            </div>
+            <div class="col-md-5">
+                <label for="end_date" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date }}">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Apply</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Category Breakdown</h5>
+            </div>
+            <div class="card-body">
+                {% if expenses %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Percentage</th>
+                                <th>Distribution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in expenses %}
+                            {% if expense['total'] > 0 %}
+                            <tr>
+                                <td>{{ expense['category_name'] }}</td>
+                                <td>${{ "%.2f"|format(expense['total']) }}</td>
+                                <td>{{ "%.1f"|format(expense['percentage']) }}%</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: {{ expense['percentage'] }}%;" 
+                                             aria-valuenow="{{ expense['percentage'] }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-active">
+                                <th>Total</th>
+                                <th>${{ "%.2f"|format(total) }}</th>
+                                <th>100%</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center">No expenses found for the selected date range.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Visualization</h5>
+            </div>
+            <div class="card-body">
+                {% if expenses and total > 0 %}
+                <canvas id="categoryPieChart" height="300"></canvas>
+                {% else %}
+                <p class="text-center">No data to display.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if expenses and total > 0 %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Create pie chart for category breakdown
+    const ctx = document.getElementById('categoryPieChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: [
+                {% for expense in expenses %}
+                {% if expense['total'] > 0 %}
+                "{{ expense['category_name'] }}",
+                {% endif %}
+                {% endfor %}
+            ],
+            datasets: [{
+                data: [
+                    {% for expense in expenses %}
+                    {% if expense['total'] > 0 %}
+                    {{ expense['total'] }},
+                    {% endif %}
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
+                    '#5a5c69', '#858796', '#6f42c1', '#20c9a6', '#fd7e14'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

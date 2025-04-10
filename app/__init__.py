@@ -38,6 +38,9 @@ def create_app(test_config=None):
     
     from . import budgets
     app.register_blueprint(budgets.bp)
+    
+    from . import reports
+    app.register_blueprint(reports.bp)
 
     # Home page route
     @app.route('/')
