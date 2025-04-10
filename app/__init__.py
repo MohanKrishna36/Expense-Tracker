@@ -32,6 +32,9 @@ def create_app(test_config=None):
     
     from . import categories
     app.register_blueprint(categories.bp)
+    
+    from . import expenses
+    app.register_blueprint(expenses.bp)
 
     # Home page route
     @app.route('/')
