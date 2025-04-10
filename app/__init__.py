@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, render_template
 
 def create_app(test_config=None):
     """Create and configure the Flask application."""
@@ -26,9 +26,13 @@ def create_app(test_config=None):
     from . import database
     database.init_app(app)
 
-    # A simple route to verify the app is working
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
+    # Register blueprints
+    from . import auth
+    app.register_blueprint(auth.bp)
+
+    # Home page route
+    @app.route('/')
+    def index():
+        return render_template('index.html')
 
     return app

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to Expense Tracker</h1>
+    <p class="lead">This application helps you track your expenses and savings goals.</p>
+    
+    {% if g.user %}
+    <p>You are logged in as {{ g.user['username'] }}.</p>
+    <hr class="my-4">
+    <p>Start tracking your expenses and managing your budgets today!</p>
+    <a class="btn btn-primary btn-lg" href="#" role="button">Add Expense</a>
+    {% else %}
+    <hr class="my-4">
+    <p>Please register or log in to start tracking your expenses.</p>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('auth.register') }}" role="button">Register</a>
+    <a class="btn btn-outline-primary btn-lg" href="{{ url_for('auth.login') }}" role="button">Log In</a>
+    {% endif %}
+</div>
+{% endblock %}
