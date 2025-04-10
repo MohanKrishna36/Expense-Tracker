@@ -47,7 +47,12 @@ def create_app(test_config=None):
     app.register_blueprint(alerts.bp)
 
     # Home page route
-    @app.route('/')
+    # Add this import with your other imports
+    from . import dashboard
+    
+    # Register the dashboard blueprint and set it as the main route
+    app.register_blueprint(dashboard.bp)
+    app.add_url_rule('/', endpoint='index')
     def index():
         return render_template('index.html')
 
